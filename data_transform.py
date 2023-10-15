@@ -1,140 +1,74 @@
 import re
-import pandas as pd
 
 
-def convert_half(text):
-    # паттерн для поиска "n-я пол. m в." или "m в. n-я пол."
-    pattern = r"(\d+)-я пол\. (\d+) в\."
-    pattern2 = r"(\d+) в\. (\d+)-я пол\."
+def full_date_form(date, pattern, pattern_reverse, form_result):
+    """
+    Функция замены сокращений в., пол. и чет.
+    :param date: изначальная форма даты из датафрейма
+    :param pattern: паттерн, по которому происходит сравнение даты
+    :param pattern_reverse: паттерн с измененным порядком его частей
+    :param form_result: форма результирующей строки, которая ожидается после выполнения функция
+    :return: исправленная дата
+    """
+    correct_date = ""
 
-    # замена частей строк
-    def replace(match):
+    def replace(match, part_index, year_index):
+        """
+        Замена сокращенной формы записи даты на полную
+        :param match: совпадающая часть у pattern и date
+        :param part_index: индекс той части, где обозначается четверть/половина века
+        :param year_index: индекс той части, где обозначается номер века
+        :return: дата с полной записью четверти/половины века
+        """
         if match.lastindex >= 2:
-            year = match.group(2)
-            return f"{match.group(1)}-я половина {year} века"
+            return form_result.format(match.group(part_index), match.group(year_index))
 
-    def replace2(match):
-        if match.lastindex >= 2:
-            year = match.group(1)
-            return f"{match.group(2)}-я половина {year} века"
+    # Проверка на то, есть ли в записи совпадение заданными паттернами
+    if re.match(pattern, date):
+        correct_date = re.sub(pattern, lambda match: replace(match, 1, 2), date)
 
-    match1 = re.match(pattern, text)
-    if match1:
-        result = re.sub(pattern, replace, text)
-        # дополнительная замена в строке, если нужно
-        if "кон." in result:
-            result = replace_kon(result)
-        if "нач." in result:
-            result = replace_nach(result)
-        return result
-    match2 = re.match(pattern2, text)
-    if match2:
-        result = re.sub(pattern2, replace2, text)
-        # дополнительная замена в строке, если нужно
-        if "кон." in result:
-            result = replace_kon(result)
-        if "нач." in result:
-            result = replace_nach(result)
-        return result
+    if re.match(pattern_reverse, date):
+        correct_date = re.sub(pattern_reverse, lambda match: replace(match, 2, 1), date)
 
-def convert_quarter(text):
-    # паттерн для поиска "n-я четв. m в." или "m в. n-я четв."
-    pattern = r"(\d+)-я четв\. (\d+) в\."
-    pattern2 = r"(\d+) в\. (\d+)-я четв\."
-
-    # замена частей строк
-    def replace(match):
-        if match.lastindex >= 2:
-            year = match.group(2)
-            return f"{match.group(1)}-я четверть {year} века"
-
-    def replace2(match):
-        if match.lastindex >= 2:
-            year = match.group(1)
-            return f"{match.group(2)}-я четверть {year} века"
-
-    match1 = re.match(pattern, text)
-    if match1:
-        result = re.sub(pattern, replace, text)
-        # дополнительная замена в строке, если нужно
-        if "кон." in result:
-            result = replace_kon(result)
-        if "нач." in result:
-            result = replace_nach(result)
-        return result
-    match2 = re.match(pattern2, text)
-    if match2:
-        result = re.sub(pattern2, replace2, text)
-        # дополнительная замена в строке, если нужно
-        if "кон." in result:
-            result = replace_kon(result)
-        if "нач." in result:
-            result = replace_nach(result)
-        return result
-
-def transform_to_list(text):
-    # паттерн для поиска годов и годовых диапазонов
-    pattern = r"(\d{4}|\d{1,4}-\d{4})"
-
-    # нахождение совпадений
-    matches = re.findall(pattern, str(text))
-    result = []
-    if matches:
-        for match in matches:
-            if "-" in match:
-                start_year, end_year = map(int, match.split("-"))
-                result.append(f"{start_year}-{end_year}")
-            else:
-                result.append(int(match))
-    return result
-
-def replace_kon(text):
-    result = text.replace("кон.", "конец")
-    if "нач." in result:
-        result = result.replace("нач.", "начало")
-    if "сер." in result:
-        result = result.replace("сер.", "середина")
-    if "в." in result:
-        result = result.replace("в.", "век")
-    return result
-
-def replace_nach(text):
-    result = text.replace("нач.", "начало")
-    if "кон." in result:
-        result = result.replace("кон.", "конец")
-    if "сер." in result:
-        result = result.replace("сер.", "середина")
-    if "в." in result:
-        result = result.replace("в.", "век")
-    return result
-
-def parse_year_info(info):
-    result = info
-    if ";" in info:
-        result = result.replace(";", ",")
-    if "пол." in info:
-        result = convert_half(result)
-    elif "четв." in info:
-        result = convert_quarter(result)
-    elif "кон." in info:
-        result = replace_kon(result)
-    elif "нач." in info:
-        result = replace_nach(result)
-    else:
-        result = transform_to_list(result)
-        result = [str(item) for item in result]
-        return ", ".join(result)
-    return result
+    return correct_date
 
 
-file_path = 'data.xlsx'
-sheet_name = 'Sheet1'
-df = pd.read_excel(file_path, sheet_name=sheet_name)
+def replace_abbreviations(date):
+    """
+    Функция замены сокращений на полную форму слов.
+    :param date: дата, в которой необходимо устранить сокращения
+    :return: корректный формат даты без сокращений
+    """
+    abbreviations = dict(zip(["кон.", "сер.", "в.", "нач."], ["конец", "середина", "век", "начало"]))
 
-for index, value in enumerate(df['Построен']):
-    if df.at[index, 'Построен'] is not None:
-        df.at[index, 'Построен'] = parse_year_info(str(df.at[index, 'Построен']))
+    for abb, full in abbreviations.items():
+        if abb in date:
+            date = date.replace(abb, full)
+    return date
 
-df.to_excel('date_transform.xlsx', index=False)
 
+def date_standardization(original_date):
+    """
+    Стандартизация даты под заданный формат
+    :param original_date: сырая дата из датафрейма
+    :return: стандартизированная дата
+    """
 
+    result_date = original_date
+
+    if ";" in original_date:
+        result_date = result_date.replace(";", ",")
+
+    if "пол." in original_date:
+        result_date = full_date_form(result_date, pattern=r"(\d+)-я пол\. (\d+) в\.",
+                                     pattern_reverse=r"(\d+) в\. (\d+)-я пол\.",
+                                     form_result="{}-я половина {} века")
+    if "четв." in original_date:
+        result_date = full_date_form(result_date, pattern=r"(\d+)-я четв\. (\d+) в\.",
+                                     pattern_reverse=r"(\d+) в\. (\d+)-я четв\.",
+                                     form_result="{}-я четверть {} века")
+
+    # Замена сокращений на полные формы
+    result_date = replace_abbreviations(result_date)
+
+    return result_date
