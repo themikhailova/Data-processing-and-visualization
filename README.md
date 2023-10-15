@@ -4,6 +4,7 @@
 Найти само задание можно в файле 'Аналитика данных.docx'
 
 Файлы:
+
 [main.py](https://github.com/themikhailova/Data-processing-and-visualization/blob/main/main.py) - основная часть кода, содержащая выполнение всех этапов задания и вызывающая прочие файлы.
 
 [data_transform.py](https://github.com/themikhailova/Data-processing-and-visualization/blob/main/data_transform.py) - функции стандартизации столбца "Построен". 
