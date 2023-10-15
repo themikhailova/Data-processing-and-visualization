@@ -12,6 +12,7 @@
 [vis_part.py](https://github.com/themikhailova/Data-processing-and-visualization/blob/main/vis_part.py) - построение трех графиков, требуемых по заданию.
 
 В папке [data](https://github.com/themikhailova/Data-processing-and-visualization/blob/main/vis_part.py) содержатся все файлы с данными, необходимыми в процессе работы с кодом:
+
 Файлы [all.xlsx](https://github.com/themikhailova/Data-processing-and-visualization/blob/main/data/all.xlsx) и [composite.xlsx](https://github.com/themikhailova/Data-processing-and-visualization/blob/main/data/composite.xlsx) являются входными и содержат список полных объектов и составных соответственно.
 
 Файл [century_author.xlsx](https://github.com/themikhailova/Data-processing-and-visualization/blob/main/data/century_author.xlsx) содержит все даты в формате веков и авторов объектов. Используется для визуализации круговой диаграммы.
