@@ -7,5 +7,5 @@ wgs84 = pyproj.CRS.from_string("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs
 transformer = pyproj.Transformer.from_crs(msk64, wgs84, always_xy=True)
 
 # Имена файлов со всеми данными и составными объектами
-file_all = '../data/all.xlsx'
-file_compos = '../data/composite.xlsx'
+file_all = 'data/all.xlsx'
+file_compos = 'data/composite.xlsx'
