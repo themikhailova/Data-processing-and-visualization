@@ -1,7 +1,7 @@
 import pandas as pd
 import requests
 
-from config import file_all, file_compos, transformer
+from setting.config import file_all, file_compos, transformer
 from data_transform import date_standardization
 from vis_part import visual_data
 
